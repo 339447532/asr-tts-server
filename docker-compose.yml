@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  asr-tts-server:
+    build: .
+    container_name: asr-tts-server
+    network_mode: "bridge"
+    ports:
+      - "1377:1377"   # TTS HTTP API
+      - "10095:10095" # ASR WebSocket
+      - "8000:8000"   # TTS WebSocket
+    volumes:
+      - ./wav_dir:/root/wav_dir
+      - ./logs:/var/log/supervisor
+      # - ./nltk:/root/nltk
+      # - ./models:/root/models
+      # - ./iic:/root/iic
+      # - ./hub:/root/hub
+      # - ./configs:/root/configs
+      # - ./data:/root/data
+    environment:
+      - CUDA_VISIBLE_DEVICES=0
+      - PYTHONUNBUFFERED=1
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    restart: unless-stopped
